@@ -1,0 +1,34 @@
+{
+    "name": "daisuki-server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "src/server.js",
+    "scripts": {
+        "start": "node src/server.js",
+        "nodemon": "nodemon src/server.js",
+        "test": "test"
+    },
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "author": "Ruichimi",
+    "license": "EPL-1.0",
+    "bugs": {
+        "url": ""
+    },
+    "homepage": "",
+    "dependencies": {
+        "bcrypt": "^5.1.1",
+        "commander": "^13.0.0",
+        "cors": "^2.8.5",
+        "curl": "^0.1.4",
+        "dotenv": "^16.4.7",
+        "express": "^4.19.2",
+        "pg": "^8.13.1",
+        "validator": "^13.12.0"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.9"
+    }
+}
