@@ -4,9 +4,7 @@ const express = require('express');
 const passport = require('passport');
 const session = require('express-session');
 const cors = require('cors');
-const path = require('path');
 const Registration = require('./services/auth/registration');
-const Authorize = require('./services/auth/authorisation');
 
 require('./services/auth/passport');
 
@@ -25,9 +23,8 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-        //httpOnly: true,
-        //secure: process.env.NODE_ENV === 'production',
-        maxAge: 1000 * 60 * 60 * 24,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
     },
 }));
 
@@ -45,7 +42,7 @@ app.post('/api/registration', async (req, res) => {
     console.log('Регистрация:', userdata);
 
     try {
-        const registration = new Registration(userdata);
+        new Registration(userdata);
         res.status(201).json({ message: 'Пользователь зарегистрирован!' });
     } catch (error) {
         res.status(500).json({ message: 'Ошибка регистрации', error: error.message });
@@ -55,17 +52,11 @@ app.post('/api/registration', async (req, res) => {
 
 app.post('/api/authorize', (req, res, next) => {
     console.log('Запрос на авторизацию:', req.body);
-    res.cookie('testCookie', 'testValue', {
-        httpOnly: true,     // Защищаем куку от доступа через JS
-        secure: process.env.NODE_ENV === 'production',  // Только для HTTPS в продакшн
-        maxAge: 1000 * 60 * 60 * 24,  // Кука будет действовать 1 день
-    });
     passport.authenticate('local', (err, user, info) => {
         if (err) {
             console.error('Ошибка при авторизации:', err);
             return next(err);
         }
-        console.log(user);
         if (!user) {
             console.error('Неудачная попытка авторизации:', info.message);  // Логирование неудачи
             return res.status(401).json({ message: 'Ошибка авторизации', error: info.message });
@@ -85,10 +76,10 @@ app.post('/api/authorize', (req, res, next) => {
 app.post('/api/dashboard', (req, res) => {
     if (!req.isAuthenticated()) {
         console.log('You are not authorized');
-        return res.status(401).json({ message: 'You are not authorized' }); // Отправляем ответ с кодом ошибки и сообщением в JSON
+        return res.json({ message: 'You are not authorized' }); // Отправляем ответ с кодом ошибки и сообщением в JSON
     }
     console.log('Welcome to your dashboard!');
-    res.status(200).json({ message: 'Welcome to your dashboard!' }); // Возвращаем данные в формате JSON
+    res.json({ message: 'Welcome to your dashboard!' }); // Возвращаем данные в формате JSON
 });
 
 app.get('/logout', (req, res) => {
@@ -100,7 +91,6 @@ app.get('/logout', (req, res) => {
     });
 });
 
-// Запуск сервера
 app.listen(port, () => {
     console.log(`Сервер запущен на http://localhost:${port}`);
 });
