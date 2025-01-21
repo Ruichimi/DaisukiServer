@@ -3,8 +3,7 @@ const app = express();
 const port = 3000;
 const cors = require('cors');
 const path = require('path');
-//const Registration = path.join(process.cwd(), 'database', 'connect.js');
-const bcrypt = require('bcrypt');
+const Registration = require('./services/auth/registration');
 
 app.use(cors());
 
@@ -16,8 +15,9 @@ app.get('/', async (req, res) => {
 //     req.params.id;
 // });
 app.post('/api/registration', express.json(), async (req, res) => {
-    const data = req.body;
-    console.log(data);
+    const userdata = req.body;
+    console.log(userdata);
+    const reg = new Registration(userdata);
 });
 
 app.listen(port, async () => {

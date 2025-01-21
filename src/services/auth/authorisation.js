@@ -1,6 +1,10 @@
 const bcrypt = require("bcrypt");
 
 class Authorisation {
+    __constructor() {
+
+    }
+
     verifyPassword(enteredPassword, hashedPassword) {
         bcrypt.compare(enteredPassword, hashedPassword, (err, isMatch) => {
             if (err) {
