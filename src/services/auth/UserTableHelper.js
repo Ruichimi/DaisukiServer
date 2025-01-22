@@ -3,7 +3,7 @@ const path = require("path");
 const pool = require(path.join(process.cwd(), 'database', 'connect.js'));
 
 /**
- * @typedef {import('../userTypes').User} User
+ * @typedef {import('../../intarfaces/userTypes').User} User
  */
 
 class UserTableHelper {

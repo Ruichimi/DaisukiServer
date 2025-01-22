@@ -58,8 +58,6 @@ class Registration {
         }
     }
 
-
-
     #validateData(data) {
         const errors = [];
 

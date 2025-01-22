@@ -1,11 +1,9 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const path = require('path');
-const pool = require(path.join(process.cwd(), 'database', 'connect.js'));
-const Auth = require('./authorisation');
+const AuthBD = require('./UserTableHelper');
 
 /**
- * @typedef {import('../userTypes').User} User
+ * @typedef {import('../../intarfaces/userTypes').User} User
  */
 
 passport.serializeUser((user, done) => {
@@ -14,7 +12,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const user = await Auth.getUserById(id);
+        const user = await AuthBD.getUserById(id);
         if (user) {
             done(null, user);
         } else {
@@ -33,9 +31,9 @@ passport.use(new LocalStrategy(
     },
     async (login, password, done) => {
         try {
-            const user = await Auth.getUserDataByLogin(login);
+            const user = await AuthBD.getUserDataByLogin(login);
             if (user) {
-                const isMatch = await Auth.verifyPassword(password, user.password_hash);
+                const isMatch = await AuthBD.verifyPassword(password, user.password_hash);
                 if (isMatch) {
                     console.log(`Пользователь ${user.username} successfully logged in`);
                     return done(null, user);
