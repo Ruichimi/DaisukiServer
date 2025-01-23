@@ -1,6 +1,5 @@
 const validator = require('validator');
 const bcrypt = require('bcrypt');
-require('dotenv').config();
 const path = require('path');
 const pool = require(path.join(process.cwd(), 'database', 'connect.js'));
 

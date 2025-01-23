@@ -3,8 +3,11 @@ const express = require('express');
 const passport = require('passport');
 const Registration = require('../services/auth/registration');
 const authConfig = require("../auth_init");
+const { checkRole }  = require('@src/middlewares/checkRole');
+const { ensureAuthenticated }  = require('@src/middlewares/auth');
 
 const router = express.Router();
+
 authConfig(router);
 router.post('/api/registration', async (req, res) => {
     const userdata = req.body;
@@ -36,12 +39,12 @@ router.post('/api/authorize', (req, res, next) => {
                 return next(loginErr);
             }
 
-            return res.json({ message: 'Авторизация успешна', user });
+            return res.json({ message: 'Авторизация успешна', user, loggedIn: true });
         });
     })(req, res, next);
 });
 
-router.post('/api/dashboard', (req, res) => {
+router.post('/api/dashboard', ensureAuthenticated, (req, res) => {
     if (!req.isAuthenticated()) {
         console.log('You are not authorized');
         return res.json({ message: 'You are not authorized' });
@@ -50,12 +53,17 @@ router.post('/api/dashboard', (req, res) => {
     res.json({ message: 'Welcome to your dashboard!' });
 });
 
-router.get('/logout', (req, res) => {
+router.get('/api/admin', ensureAuthenticated, checkRole('admin'), (req, res) => {
+    res.json({ message: 'Welcome to admin panel!' });
+});
+
+router.post('/api/logout', (req, res) => {
     req.logout((err) => {
         if (err) {
+            console.log('Failed to logout user');
             return res.status(500).send('Ошибка выхода');
         }
-        res.redirect('/');
+        res.status(200).send('Successfully logged out');
     });
 });
 

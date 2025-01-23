@@ -8,7 +8,7 @@ const pool = require('../connect');
                 id            SERIAL PRIMARY KEY,
                 username      VARCHAR(50)         NOT NULL,
                 email         VARCHAR(100) UNIQUE NOT NULL,
-                role          VARCHAR(50),
+                role          VARCHAR(50)         DEFAULT 'user',
                 password_hash VARCHAR(255)        NOT NULL,
                 created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
