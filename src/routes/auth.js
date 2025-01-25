@@ -1,14 +1,15 @@
-require('@src/services/auth/passport');
 const express = require('express');
-const passport = require('passport');
 const Registration = require('../services/auth/registration');
-const authConfig = require("../auth_init");
 const { checkRole }  = require('@src/middlewares/checkRole');
-const { ensureAuthenticated }  = require('@src/middlewares/auth');
-
+const Auth = require('@src/services/auth/authorization');
+const passportJwt = require('@src/services/auth/passportJwt');
+const passport = require('passport');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
 
-authConfig(router);
+
+router.use(passport.initialize());
+
 router.post('/api/registration', async (req, res) => {
     const userdata = req.body;
     console.log('Регистрация:', userdata);
@@ -21,39 +22,25 @@ router.post('/api/registration', async (req, res) => {
     }
 });
 
-router.post('/api/authorize', (req, res, next) => {
-    console.log('Запрос на авторизацию:', req.body);
-    passport.authenticate('local', (err, user, info) => {
-        if (err) {
-            console.error('Ошибка при авторизации:', err);
-            return next(err);
-        }
-        if (!user) {
-            console.error('Неудачная попытка авторизации:', info.message);
-            return res.status(401).json({ message: 'Ошибка авторизации', error: info.message });
-        }
-
-        req.logIn(user, (loginErr) => {
-            if (loginErr) {
-                console.error('Ошибка при входе:', loginErr);
-                return next(loginErr);
-            }
-
-            return res.json({ message: 'Авторизация успешна', user, loggedIn: true });
-        });
-    })(req, res, next);
-});
-
-router.post('/api/dashboard', ensureAuthenticated, (req, res) => {
-    if (!req.isAuthenticated()) {
-        console.log('You are not authorized');
-        return res.json({ message: 'You are not authorized' });
+router.post('/api/authorize', async (req, res) => {
+    const { login, password } = req.body;
+    try {
+        const token = await Auth.auth(login, password);
+        res.json({ message: 'Авторизация успешна', token, loggedIn: true });
+    } catch (error) {
+        console.error('Ошибка авторизации:', error);
+        res.status(500).json({ message: 'Ошибка на сервере' });
     }
-    console.log('Welcome to your dashboard!');
-    res.json({ message: 'Welcome to your dashboard!' });
 });
 
-router.get('/api/admin', ensureAuthenticated, checkRole('admin'), (req, res) => {
+router.get('/api/dashboard', passportJwt.authenticate('jwt', { session: false }), (req, res) => {
+    console.log(req.user);
+    if (!req.user) {
+        return res.status(401).json({ message: 'Unauthorized' });
+    }
+    res.json({ message: `Welcome to your dashboard, ${req.user.username}!` });
+});
+router.get('/api/admin', passportJwt.authenticate('jwt', { session: false }), checkRole('admin'), (req, res) => {
     res.json({ message: 'Welcome to admin panel!' });
 });
 

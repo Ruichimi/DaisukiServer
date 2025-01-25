@@ -41,20 +41,6 @@ class UserTableHelper {
             throw new Error(`Ошибка при запросе к базе данных: \n${error.message}`);
         }
     }
-
-    verifyPassword(enteredPassword, hashedPassword) {
-        return new Promise((resolve, reject) => {
-            bcrypt.compare(enteredPassword, hashedPassword, (err, isMatch) => {
-                if (err) {
-                    reject(new Error(`Ошибка при сравнении паролей: \n${err}`));
-                } else if (isMatch) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
-        });
-    }
 }
 
 module.exports = new UserTableHelper();
